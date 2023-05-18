@@ -5,6 +5,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
     public static void main(String[] args) {
+        //alapfeladat teljes
         Character wizard = new Character('V', 3);
         Character warrior = new Character('H', 1);
         int round = 0;
