@@ -4,12 +4,10 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Character {
     private int health;
     private int activeField;
-    private char pawn;
 
-    public Character(char pawn, int activeField) {
+    public Character(int activeField) {
         this.health = ThreadLocalRandom.current().nextInt(1, 7) + 3;
         this.activeField = activeField;
-        this.pawn = pawn;
     }
 
     public int getHealth() {
@@ -32,9 +30,5 @@ public class Character {
 
     public void setActiveField(int activeField) {
         this.activeField = activeField;
-    }
-
-    public char getPawn() {
-        return pawn;
     }
 }
