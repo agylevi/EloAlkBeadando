@@ -35,7 +35,7 @@ public class Arena {
         }
     }
 
-    public void printArena(Warrior warrior, Wizard wizard) {
+    public String printArena(Warrior warrior, Wizard wizard) {
         String harcString = warrior.getActiveField() == wizard.getActiveField() ? " harc: " : " ";
         String arenaString = "";
 
@@ -50,8 +50,10 @@ public class Arena {
                 arenaString += " -->";
             }
         }
+        String arenaState = arenaString + harcString +
+                "H:" + warrior.getHealth() + ", " + "V:" + wizard.getHealth();
+        System.out.println(arenaState);
 
-        System.out.println(arenaString + harcString +
-                "H:" + warrior.getHealth() + ", " + "V:" + wizard.getHealth());
+        return arenaState;
     }
 }
