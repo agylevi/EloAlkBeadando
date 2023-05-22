@@ -1,4 +1,6 @@
 package eloalk.com;
+import exceptions.InvalidHealthException;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Character {
@@ -7,6 +9,15 @@ public class Character {
 
     public Character(int activeField) {
         this.health = ThreadLocalRandom.current().nextInt(1, 7) + 3;
+        this.activeField = activeField;
+    }
+
+    public Character(int health, int activeField) throws InvalidHealthException {
+        if (health < 0) {
+            throw new InvalidHealthException("Az életerő nem lehet negatív");
+        }
+
+        this.health = health;
         this.activeField = activeField;
     }
 

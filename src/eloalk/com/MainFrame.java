@@ -4,12 +4,12 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.GridLayout;
+import java.io.FileInputStream;
+import java.io.ObjectInputStream;
+import java.util.ArrayList;
 
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class MainFrame extends JFrame {
     private MainFrame thisMain = this;
@@ -21,11 +21,7 @@ public class MainFrame extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            /*FelvetelFrame felvetel = new FelvetelFrame();
-            thisMain.dispose();
-            felvetel.setVisible(true);*/
-
-            GameFrame gameFrame = new GameFrame();
+            GameFrame gameFrame = new GameFrame(null);
             thisMain.dispose();
             gameFrame.setVisible(true);
         }
@@ -36,9 +32,29 @@ public class MainFrame extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            /*KivetelFrame kivetel = new KivetelFrame();
-            thisMain.dispose();
-            kivetel.setVisible(true);*/
+            JFileChooser chooser = new JFileChooser();
+
+            //Open File Picker
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "*dat files", "dat");
+            chooser.setFileFilter(filter);
+            int returnVal = chooser.showOpenDialog(thisMain);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                ArrayList<RoundData> roundDataList = new ArrayList<>();
+
+                try {
+
+                    ObjectInputStream ois = new ObjectInputStream(new FileInputStream(chooser.getSelectedFile().getAbsolutePath()));
+                    roundDataList = (ArrayList<RoundData>)ois.readObject();
+                    ois.close();
+                } catch(Exception ex) {
+                    System.out.println(ex.getMessage());
+                }
+
+                GameFrame gameFrame = new GameFrame(roundDataList);
+                thisMain.dispose();
+                gameFrame.setVisible(true);
+            }
         }
 
     }

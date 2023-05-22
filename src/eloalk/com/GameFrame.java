@@ -1,5 +1,6 @@
 package eloalk.com;
 
+import exceptions.InvalidHealthException;
 import exceptions.OutOfArenaException;
 
 import java.awt.Dimension;
@@ -9,9 +10,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class GameFrame extends JFrame {
     private JPanel kovetkezoKorPanel;
@@ -28,6 +31,7 @@ public class GameFrame extends JFrame {
     private Arena arena = new Arena(3);
     private Warrior warrior = new Warrior(1);
     private Wizard wizard = new Wizard(3);
+    private ArrayList<RoundData> roundDatas = new ArrayList<RoundData>();
     private GameEngine game = new GameEngine(arena, warrior, wizard);
     GameFrame thisFrame = this;
 
@@ -57,13 +61,28 @@ public class GameFrame extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            /*try {
-                ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("stock.dat"));
-                //oos.writeObject(tableData.items);
-                oos.close();
-            } catch(Exception ex) {
-                ex.printStackTrace();
-            }*/
+            JFileChooser chooser = new JFileChooser();
+
+            //Open File Picker
+            FileNameExtensionFilter filter = new FileNameExtensionFilter(
+                    "*dat files", "dat");
+            chooser.setFileFilter(filter);
+            int returnVal = chooser.showSaveDialog(thisFrame);
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                try {
+                    String filePath = chooser.getSelectedFile().getAbsolutePath();
+
+                    if (!filePath.contains(".dat")) {
+                        filePath = filePath.concat(".dat");
+                    }
+
+                    ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath, false));
+                    oos.writeObject(roundDatas);
+                    oos.close();
+                } catch(Exception ex) {
+                    System.out.println(ex.getMessage());
+                }
+            }
         }
 
     }
@@ -98,27 +117,34 @@ public class GameFrame extends JFrame {
                 System.out.println(ex.getMessage());
             }
             kovetkezoKorButton.setEnabled(true);
+            mentesButton.setEnabled(true);
         }
 
     }
 
-    public GameFrame() {
+    public GameFrame(ArrayList<RoundData> roundDataList) {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setTitle("Raktárkezelő - Áru Felvétel");
+        setTitle("Harcos vs Varázsló - Játék");
         setSize(750, 450);
         setMinimumSize(new Dimension(850, 300));
         setResizable(true);
         setLayout(new GridLayout(7,1));
 
-        // Induláskor játék betöltése, ha kell
-        /*try {
-            //tableData = new ItemData();
-            ObjectInputStream ois = new ObjectInputStream(new FileInputStream("stock.dat"));
-            //tableData.items = (ArrayList<Item>)ois.readObject();
-            ois.close();
-        } catch(Exception ex) {
-            ex.printStackTrace();
-        }*/
+        if (roundDataList != null) {
+            RoundData lastData = roundDataList.get(roundDataList.size() - 1);
+            arena = new Arena(3);
+            try {
+                warrior = new Warrior(lastData.getWarriorHealth(), lastData.getWarriorPosition());
+                wizard = new Wizard(lastData.getWizardHealth(), lastData.getWizardPosition());
+            }
+            catch (InvalidHealthException ex) {
+                System.out.println(ex.getMessage());
+                System.out.println("A mentés sérült");
+                return;
+            }
+
+            game = new GameEngine(arena, warrior, wizard, lastData.getRound());
+        }
 
         //Menü felépítése
         menuPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 300, 0));
@@ -194,10 +220,17 @@ public class GameFrame extends JFrame {
         getContentPane().add(logPanel);
         getContentPane().add(kovetkezoKorPanel);
 
-        try {
-            RefreshUI(game.play());
-        } catch (OutOfArenaException ex) {
-            System.out.println(ex.getMessage());
+        if (roundDataList != null) {
+            for (int i = 0; i < roundDataList.size(); i++) {
+                RefreshUI(roundDataList.get(i));
+            }
+        }
+        else {
+            try {
+                RefreshUI(game.play());
+            } catch (OutOfArenaException ex) {
+                System.out.println(ex.getMessage());
+            }
         }
     }
 
@@ -233,8 +266,10 @@ public class GameFrame extends JFrame {
 
         if (roundData.isWarriorWon() || roundData.isWizardWon()) {
             kovetkezoKorButton.setEnabled(false);
+            mentesButton.setEnabled(false);
         }
 
+        roundDatas.add(roundData);
         getContentPane().revalidate();
         getContentPane().repaint();
     }

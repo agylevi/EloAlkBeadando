@@ -19,6 +19,13 @@ public class GameEngine {
         this.wizard = wizard;
     }
 
+    public GameEngine(Arena arena, Warrior warrior, Wizard wizard, int round) {
+        this.arena = arena;
+        this.warrior = warrior;
+        this.wizard = wizard;
+        this.round = round;
+    }
+
     public int getRound() {
         return this.round;
     }
@@ -72,7 +79,8 @@ public class GameEngine {
 
         round++;
 
-        return new RoundData(wizard.getHealth(), warrior.getHealth(), warriorWon, wizardWon, arena.getArena(), arenaState);
+        return new RoundData(wizard.getHealth(), warrior.getHealth(), wizard.getActiveField(), warrior.getActiveField(), round,warriorWon, wizardWon,
+                arena.getArena(), arenaState);
     }
 
     public RoundData advanceRound() throws OutOfArenaException {
@@ -117,6 +125,7 @@ public class GameEngine {
 
         round++;
 
-        return new RoundData(wizard.getHealth(), warrior.getHealth(), warriorWon, wizardWon, arena.getArena(), arenaState);
+        return new RoundData(wizard.getHealth(), warrior.getHealth(), wizard.getActiveField(), warrior.getActiveField(), round,warriorWon, wizardWon,
+                arena.getArena(), arenaState);
     }
 }
